@@ -10,7 +10,9 @@ readme = "README.md"
 requires-python = ">=3.12"
 license = { text = "MIT" }
 authors = [{ name = "maosanhioro" }]
-dependencies = []
+dependencies = [
+    "rich",
+]
 keywords = ["python", "playground", "experiments"]
 classifiers = [
   "Programming Language :: Python :: 3",
@@ -64,3 +66,6 @@ pythonpath = ["experiments"]
 [tool.coverage.run]
 branch = true
 source = ["experiments"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["python_fun_scripts"]

@@ -8,6 +8,7 @@
 ```
 experiments/
   01_sample/
+  01_terminal_tree/
     README.md
     main.py
 docs/
@@ -20,7 +21,7 @@ docs/
 
 1. `experiments/` に `NN_topic-name/` ディレクトリを作成（`NN` は 2 桁の連番または日付など）。
 2. `README.md`（目的・使い方・得られた学び）と `main.py` などソースを配置。
-3. 必要な依存を `pyproject.toml` の `[project.optional-dependencies."exp-<name>"]` などで管理するか、`uv add <pkg>` でピン留め。
+3. 必要な依存を `uv add <pkg>` で管理（実験固有なら `[project.optional-dependencies."exp-<name>"]` などでも OK）。
 4. `ruff format && ruff check && mypy && pytest` で最低限の検証。
 5. README の「Experiment index」に追記（必要になったらセクションを作成）。
 
@@ -53,3 +54,9 @@ uv run mypy
 
 - `docs/DEV_ENV.md` に 2025 年末時点での「人気かつ安定している Python 開発環境」のまとめがあります。
 - 追加で欲しいテンプレやタスクランナー（例: `just`, `task`) があれば別途導入してください。
+
+## Experiment index
+
+| ID | Name | Notes |
+| -- | ---- | ----- |
+| 01 | `terminal_tree` | Rich で描くグレイスケールのライブツリー (`uv run python experiments/01_terminal_tree/main.py`) |

@@ -1,11 +1,11 @@
 """
-目的:
-  rich を使って「きらきら豪華に光る」クリスマスツリーをターミナルに描画する。
+Purpose:
+  Use rich to draw a luminous terminal Christmas tree.
 
-実行:
+Run:
   uv run python experiments/01_terminal_tree/main.py
 
-終了:
+Quit:
   Ctrl+C
 """
 
@@ -35,10 +35,11 @@ TREE_TONES = {
 ORNAMENT_TONES = ["#f5f5f5", "#d9d9d9", "#bfbfbf", "#9d9d9d"]
 GARLAND_TONES = ["#ececec", "#9aa7b7"]
 STAR_TONES = ("#f7f7f7", "#dcdcdc")
+Color = tuple[int, int, int]
 
 
-def lerp_rgb(a: tuple[int, int, int], b: tuple[int, int, int], t: float) -> tuple[int, int, int]:
-    """RGB補間の内部ユーティリティ。"""
+def lerp_rgb(a: Color, b: Color, t: float) -> Color:
+    """Small helper for RGB interpolation."""
     return (
         int(a[0] + (b[0] - a[0]) * t),
         int(a[1] + (b[1] - a[1]) * t),
@@ -46,7 +47,7 @@ def lerp_rgb(a: tuple[int, int, int], b: tuple[int, int, int], t: float) -> tupl
     )
 
 
-def rgb_to_hex(rgb: tuple[int, int, int]) -> str:
+def rgb_to_hex(rgb: Color) -> str:
     return f"#{rgb[0]:02x}{rgb[1]:02x}{rgb[2]:02x}"
 
 
@@ -103,10 +104,12 @@ class Config:
     height: int = 18
     fps: int = 14
     ornament_rate: float = 0.16  # 葉のうちオーナメントの割合
-    twinkle_rate: float = 0.35  # オーナメントが光る確率（フレームごと）
+    # Rate (per frame) that ornaments will twinkle.
+    twinkle_rate: float = 0.35
     snow_rate: float = 0.05  # 遠景の雪
     snow_near_rate: float = 0.025  # 手前の雪
-    glitter_rate: float = 0.04  # グリッターの出現確率（フレームごと）
+    # Frequency for glitter particles around the tree.
+    glitter_rate: float = 0.04
     ground_height: int = 5
     reflection_fade: float = 0.55
 
@@ -115,15 +118,16 @@ CFG = Config()
 
 
 def build_tree_coords(height: int) -> list[tuple[int, int]]:
-    """ツリーの葉部分の座標 (x,y) を返す。幅は height*2-1 の座標系。"""
+    """Return triangular leaf coordinates for the tree mask."""
     w = height * 2 - 1
     coords: list[tuple[int, int]] = []
     for y in range(height):
         width = y * 2 + 1
         start = (w - width) // 2
         for x in range(start, start + width):
-            # 少しだけギザギザ（豪華さ/自然さ）
-            if y > 2 and (x == start or x == start + width - 1) and random.random() < 0.25:
+            # Skip some edge cells to keep the silhouette a little jagged.
+            edge = x == start or x == start + width - 1
+            if y > 2 and edge and random.random() < 0.25:
                 continue
             coords.append((x, y))
     return coords
@@ -172,7 +176,9 @@ def render_frame(
     # 画面セル（文字・スタイル）
     # 先に「空」を作って、後から上書きしていく
     ch: list[list[str]] = [[" " for _ in range(w)] for _ in range(total_height)]
-    st: list[list[str | None]] = [[None for _ in range(w)] for _ in range(total_height)]
+    st: list[list[str | None]] = [
+        [None for _ in range(w)] for _ in range(total_height)
+    ]
     ground_colors = [
         ground_color(i, CFG.ground_height) for i in range(CFG.ground_height)
     ]
